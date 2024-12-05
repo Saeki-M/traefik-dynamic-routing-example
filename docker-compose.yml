@@ -1,0 +1,27 @@
+services:
+  fastapi:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
+    volumes:
+      - ./app:/app
+    command: /start-reload.sh
+
+  traefik:
+    image: traefik:3.2.1
+    command:
+      - --entryPoints.web.address=:80
+      - --providers.http.endpoint=http://fastapi/traefik-config
+      - --providers.http.pollInterval=10s
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  backend1:
+    image: nginx:alpine
+    volumes:
+      - "./backend1:/usr/share/nginx/html:ro"
+
+  backend2:
+    image: nginx:alpine
+    volumes:
+      - "./backend2:/usr/share/nginx/html:ro"
